@@ -1,10 +1,17 @@
 package main
 
-import "GoRestApi/internal/api"
+import (
+	"GoRestApi/internal/api"
+	"GoRestApi/pkg/config"
+	"GoRestApi/pkg/data"
+)
 
-// Criando nova instância api, e chamando a função start para configurar
-// as rotas e executar o aplicativo.
 func main() {
+	//
+	cfg := config.New()
+	db := data.NewMongoConnection(cfg)
+	defer db.Disconnect()
+
 	application := api.New()
 	application.Start()
 }
