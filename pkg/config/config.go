@@ -24,7 +24,7 @@ func New() *Settings {
 
 	// Definimos o arquivo de configuração e o tipo para .env
 	viper.SetConfigFile(".env")
-	viper.SetConfigType(".env")
+	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
 
