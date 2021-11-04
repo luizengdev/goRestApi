@@ -12,6 +12,6 @@ func main() {
 	db := data.NewMongoConnection(cfg)
 	defer db.Disconnect()
 
-	application := api.New()
+	application := api.New(cfg, db.Client)
 	application.Start()
 }

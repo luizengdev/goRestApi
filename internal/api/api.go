@@ -1,31 +1,49 @@
 package api
 
 import (
+	"GoRestApi/pkg/config"
+	"GoRestApi/pkg/data"
+	"GoRestApi/pkg/services"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Estrutura que conterá infomações partilhavel para serem utilizadas em outras funções
 type App struct {
-	server *echo.Echo
+	server  *echo.Echo
+	userSvc services.IUserService
+	cfg     *config.Settings
 }
 
 // New inicializa o servidor Echo e qualquer lógica adicional como middleware global e dependencias
-func New() *App {
+func New(cfg *config.Settings, client *mongo.Client) *App {
 	// Echo instance
 	server := echo.New()
 
 	// middleware
 	server.Use(middleware.Recover())
+	server.Use(middleware.RequestID())
+
+	// providers
+	userProvider := data.NewUserProvider(cfg, client)
+
+	// services
+	userSvc := services.NewUserService(cfg, userProvider)
 
 	return &App{
-		server: server,
+		server:  server,
+		userSvc: userSvc,
+		cfg:     cfg,
 	}
 }
 
 // ConfigureRoutes cria e configura os endpoint
 func (a App) ConfigureRoutes() {
 	a.server.GET("/v1/public/healthy", a.HealthCheck)
+	a.server.POST("/v1/public/account/register", a.Register)
+	a.server.POST("/v1/public/account/login", a.Login)
 }
 
 // Start configura à rota e depois starta o servidor na porta.
