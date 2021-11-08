@@ -44,6 +44,16 @@ func (a App) ConfigureRoutes() {
 	a.server.GET("/v1/public/healthy", a.HealthCheck)
 	a.server.POST("/v1/public/account/register", a.Register)
 	a.server.POST("/v1/public/account/login", a.Login)
+
+	protected := a.server.Group("v1/api")
+
+	middleware := Middleware{config: a.cfg}
+
+	protected.Use(middleware.Auth)
+	protected.GET("/secret", func(c echo.Context) error {
+		userId := c.Get("user").(string)
+		return c.String(200, userId)
+	})
 }
 
 // Start configura à rota e depois starta o servidor na porta.
